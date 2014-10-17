@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
@@ -18,7 +13,8 @@ The variables included in this dataset are:
 
 The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset. 
 
-```{r echo=TRUE}
+
+```r
 if (!file.exists("activity.csv")) { unzip("repdata_data_activity.zip")}
 activity.data <- read.csv("activity.csv",colClasses=c("integer","Date","integer"))
 ```
@@ -28,41 +24,50 @@ activity.data <- read.csv("activity.csv",colClasses=c("integer","Date","integer"
 ## Mean total number of steps taken per day
 
 Missing values in the dataset are ignored for the analysis in this section.
-```{r echo=TRUE}
+
+```r
 # compute total number of steps taken per day, its mean and median 
 daily.steps <- aggregate(steps ~ date, data = activity.data, sum)
 daily.steps.mean <- mean(daily.steps$steps)
 daily.steps.median <- median(daily.steps$steps)
 ```
 
-```{r daily_steps1,echo=TRUE,fig.height=4}
+
+```r
 # use lattice plotting system
 library(lattice)
 with(daily.steps, histogram(steps, type = "count", 
                             main = "Histogram of total number of steps per day", ylab = "days"))
 ```
 
-Mean total number of steps taken per day is `r sprintf("%.5f",daily.steps.mean)`.
+![plot of chunk daily_steps1](./PA1_template_files/figure-html/daily_steps1.png) 
 
-Median total number of steps taken per day is `r sprintf("%.5f",daily.steps.median)`.
+Mean total number of steps taken per day is 10766.18868.
+
+Median total number of steps taken per day is 10765.00000.
 
 ## Average daily activity pattern
 
 Missing values in the dataset are ignored for the analysis in this section.
-```{r echo=TRUE}
+
+```r
 # average number of steps taken, averaged across all days  
 interval.mean <- aggregate(steps ~ interval, data = activity.data, mean)
 # interval with maximum number of steps on average across all days 
 max.steps.interval <- interval.mean$interval[which.max(interval.mean$steps)]
 ```
-```{r daily_activity,echo=TRUE,fig.height=4}
+
+```r
 with(interval.mean, xyplot(steps ~ interval, type = "l", main = "Average daily activity"))
 ```
 
-The 5-minute interval starting from `r max.steps.interval`, on average across all the days in the dataset, contains the maximum number of steps.
+![plot of chunk daily_activity](./PA1_template_files/figure-html/daily_activity.png) 
+
+The 5-minute interval starting from 835, on average across all the days in the dataset, contains the maximum number of steps.
 
 ## Imputing missing values
-```{r echo=TRUE}
+
+```r
 # calculate total number of missing values
 missing.counts <- length(which(is.na(activity.data)))
 
@@ -80,17 +85,20 @@ daily.steps.mean <- mean(daily.steps$steps)
 daily.steps.median <- median(daily.steps$steps)
 ```
 
-The total number of missing values in the dataset is `r missing.counts`.
+The total number of missing values in the dataset is 2304.
 
 The mean for a matching 5-minute interval will be used to impute the missing values in the dataset.
 
-```{r daily_steps2,echo=TRUE,fig.height=4}
+
+```r
 with(daily.steps, histogram(steps, type = "count", main = "Histogram of total number of steps per day", ylab = "Days"))
 ```
 
-Mean total number of steps taken per day is `r sprintf("%.5f",daily.steps.mean)`.  
+![plot of chunk daily_steps2](./PA1_template_files/figure-html/daily_steps2.png) 
 
-Mean total number of steps taken per day is `r sprintf("%.5f",daily.steps.median)`.
+Mean total number of steps taken per day is 10766.18868.  
+
+Mean total number of steps taken per day is 10766.18868.
 
 Compared to the estimates from the first part of the assignment, where missing values are ignored, the mean is the same while the median is different.
 
@@ -104,10 +112,13 @@ By using the mean for a matching 5-minute interval for imputing missing data,
 
 This analysis use the dataset from previous section.
 
-```{r compare_activity,echo=TRUE,fig.height=6}
+
+```r
 # create factor variable for 'weekday' & 'weekend'
 imputed.data$weekday <- factor(ifelse(weekdays(imputed.data$date) == "Sunday" | weekdays(imputed.data$date) == "Saturday", "weekend", "weekday"))
 
 with(aggregate(steps ~ interval + weekday, data = imputed.data, mean), 
      xyplot(steps ~ interval | weekday, layout = c(1,2), type ="l"))
 ```
+
+![plot of chunk compare_activity](./PA1_template_files/figure-html/compare_activity.png) 
